@@ -1,0 +1,24 @@
+﻿@page "/"
+@using BlazorTextarea
+
+<PageTitle>BlazorTextarea Server demo - Improved Textarea</PageTitle>
+
+<h3>Improved Textarea - DO NOT USE ON BLAZOR SERVER</h3>
+<h5>BlazorTextarea Server demo</h5>
+
+<p>Do not use on Blazor Server as performance is the same</p>
+
+<Textarea @bind-value=text @bind-value:event="oninput" style="width:100%" rows=10 @ref=myTextarea></Textarea>
+<p>Text length: @text.Length (shows binding in operation)</p>
+
+<button class="btn btn-primary" @onclick="() => Increment(LorumIpsum.Text1000(64))">Add 64000 chars</button>
+
+
+@code {
+    private string text = "demo text";
+
+    private Textarea myTextarea = null!;
+
+    private void Increment(string value) => text += value;
+
+}

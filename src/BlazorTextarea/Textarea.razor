@@ -1,0 +1,55 @@
+﻿@using System.Text
+
+<DiffTextarea 
+    @ref=diffTextarea
+    @bind-Value=StringBuilder 
+    UpdateBatchCount=UpdateBatchCount 
+    BatchUpdates=BatchUpdates 
+    @attributes=Attributes>
+</DiffTextarea>
+
+@code {
+
+    /// <summary>
+    /// The underlying textarea element reference should you need it.
+    /// </summary>
+    public ElementReference TextArea => diffTextarea.Textarea;
+
+    private DiffTextarea diffTextarea = null!;
+
+    private string text = null!;
+
+    [Parameter]
+    public string value {
+        get => text;
+        set
+        {
+            if (text != value)
+            {
+                text = value;
+                StringBuilder.Clear();
+                StringBuilder.Append(text);
+            }
+        }
+    }
+
+    [Parameter]
+    public EventCallback<string> valueChanged { get; set; }
+
+    /// <summary>
+    /// Specify the amount of characters to batch take when textarea value updates are performed js interop (default 16000).
+    /// </summary>
+    [Parameter]
+    public int UpdateBatchCount { get; set; } = 16000;
+
+    /// <summary>
+    /// Specify to receive value callbacks on each batch update or on the final update (default).
+    /// </summary>
+    [Parameter]
+    public bool BatchUpdates { get; set; } = false;
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IDictionary<string, object> Attributes { get; set; } = null!;
+
+    private StringBuilder StringBuilder { get; set; } = new StringBuilder();
+}

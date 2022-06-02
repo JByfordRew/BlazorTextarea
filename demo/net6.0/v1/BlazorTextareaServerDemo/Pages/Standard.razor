@@ -1,0 +1,22 @@
+﻿@page "/standard"
+@using BlazorTextarea
+
+<PageTitle>BlazorTextarea Server demo - Standard textarea</PageTitle>
+
+<h3>Standard textarea</h3>
+<h5>BlazorTextarea Server demo</h5>
+
+<textarea @bind-value=text @bind-value:event='oninput' style="width:100%" rows=10></textarea>
+<p>Text length: @text.Length (shows binding in operation)</p>
+<p>Using standard textarea: True</p>
+<p>Note: the standard textarea typing experience degrades between 16,000 and 32,000+ chars. </p>
+
+<button class="btn btn-primary" @onclick="() => Increment(LorumIpsum.Text1000(4))">Add 4000 chars</button>
+<button class="btn btn-primary" @onclick="() => Increment(LorumIpsum.Text1000(64))">Add 64000 chars</button>
+
+@code {
+    private string text = "demo text";
+
+    private void Increment(string value) => text += value;
+
+}

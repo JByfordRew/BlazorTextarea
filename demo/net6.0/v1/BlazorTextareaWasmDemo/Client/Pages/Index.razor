@@ -1,0 +1,24 @@
+﻿@page "/"
+@using BlazorTextarea
+
+<PageTitle>BlazorTextarea Wasm demo - Improved Textarea</PageTitle>
+
+<h3>Improved Textarea</h3>
+<h5>BlazorTextarea Wasm demo</h5>
+
+<pre>&lt;Textarea @@bind-value=text @@bind-value:event="oninput"&gt;&lt;/Textarea&gt;</pre>
+
+<Textarea @bind-value=text @bind-value:event="onkeyup" BatchUpdates=true style="width:100%" rows=10></Textarea>
+
+<p>Text length: @text.Length (shows binding in operation)</p>
+
+<button class="btn btn-primary" @onclick="() => Increment(LorumIpsum.Text1000(4))">Add 4000 chars</button>
+<button class="btn btn-primary" @onclick="() => Increment(LorumIpsum.Text1000(64))">Add 64000 chars</button>
+
+@code {
+    private string text = "demo text";
+
+    private Textarea myTextarea = null!;
+
+    private void Increment(string value) => text += value;
+}

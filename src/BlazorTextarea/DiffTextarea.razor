@@ -1,0 +1,125 @@
+﻿@using BlazorTextarea
+@using Microsoft.JSInterop
+@using System.Text
+
+<textarea @ref=Textarea value=@text @attributes=attributes></textarea>
+
+@code {
+    public ElementReference Textarea { get; set; }
+
+    private string eventName = "";
+
+    private EventCallback<string> eventCallback;
+
+    IDictionary<string, object>? attributes = null!;
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IDictionary<string, object> Attributes {
+        get => attributes!;
+        set
+        {
+            if (value is not null)
+            {
+                foreach (var attribute in value)
+                {
+                    if (attribute.Value is EventCallback<string> callback)
+                    {
+                        eventName = attribute.Key;
+                        eventCallback = callback;
+                    }
+                }
+
+                if (eventName == "oninput")
+                {
+                    //NOTE: default applied automatically so no blazor binding needed.
+                    value.Remove("oninput");
+                }
+
+                if (value.ContainsKey(eventName))
+                {
+                    value[eventName] = async () => await Task.CompletedTask;
+                }
+            }
+
+            attributes = value;
+        }
+    }
+
+    private string text = "";
+
+    private bool userIsNotInteractingSoMessageIsFromConsumer = true;
+
+    private StringBuilder stringBuilder = new StringBuilder();
+
+    [Parameter]
+    [EditorRequired]
+    public StringBuilder Value {
+        get => stringBuilder;
+        set
+        {
+            if (userIsNotInteractingSoMessageIsFromConsumer)
+            {
+                stringBuilder = value;
+                var newValue = value.ToString();
+                InvokeAsync(async () => await jsInterop.SetText(Textarea, newValue));
+                text = newValue;
+            }
+        }
+    }
+
+    [Parameter]
+    public EventCallback<StringBuilder> ValueChanged { get; set; }
+
+    /// <summary>
+    /// Specify the amount of characters to batch take when textarea value updates are performed js interop (default 16000).
+    /// </summary>
+    [Parameter]
+    public int UpdateBatchCount { get; set; } = 16000;
+
+    /// <summary>
+    /// Specify to receive value callbacks on each batch update or on the final update (default).
+    /// </summary>
+    [Parameter]
+    public bool BatchUpdates { get; set; } = false;
+
+    [Inject]
+    internal IJSRuntime? JsRuntime { get; set; }
+
+    private JsInterop jsInterop = null!;
+
+    private DotNetObjectReference<DiffTextarea> objRef = null!;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            jsInterop = new JsInterop(JsRuntime!);
+            objRef = DotNetObjectReference.Create(this);
+            await jsInterop.Init(objRef, Textarea, UpdateBatchCount, eventName);
+        }
+    }
+
+    [JSInvokable]
+    public async Task GetChange(int start, int length, string diff, bool done)
+    {
+        userIsNotInteractingSoMessageIsFromConsumer = false;
+
+        if (start > -1)
+        {
+            if (length < 0)
+            {
+                stringBuilder.Remove(start, Math.Abs(length));
+            }
+            else if (length > 0)
+            {
+                stringBuilder.Insert(start, diff);
+            }
+
+            if (BatchUpdates || done)
+            {
+                await eventCallback.InvokeAsync(stringBuilder.ToString());
+                userIsNotInteractingSoMessageIsFromConsumer = done; //NOTE important this is after ValueChanged.InvokeAsync
+            }
+        }
+    }
+}
