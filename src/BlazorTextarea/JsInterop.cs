@@ -10,7 +10,7 @@ namespace BlazorTextarea
         public JsInterop(IJSRuntime jsRuntime)
         {
             moduleTask = new(() => jsRuntime.InvokeAsync<IJSObjectReference>(
-                "import", "./_content/BlazorTextarea/jsInterop.js").AsTask());
+                "import", "./_content/BlazorTextarea/jsInteropBlazorTextarea.js").AsTask());
         }
 
         internal async Task Init<T>(T objRef, ElementReference elementReference, int updateBatchCount, string eventName)
