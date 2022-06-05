@@ -18,27 +18,13 @@
         get => attributes!;
         set
         {
-            if (value is not null)
+            if (value is not null && value.Any(_ => _.Value is EventCallback<string>))
             {
-                foreach (var attribute in value)
-                {
-                    if (attribute.Value is EventCallback<string> callback)
-                    {
-                        eventName = attribute.Key;
-                        eventCallback = callback;
-                    }
-                }
-
-                if (eventName == "oninput")
-                {
-                    //NOTE: default applied automatically so no blazor binding needed.
-                    value.Remove("oninput");
-                }
-
-                if (value.ContainsKey(eventName))
-                {
-                    value[eventName] = async () => await Task.CompletedTask;
-                }
+                var callbackEventAttribute = value.Last(_ => _.Value is EventCallback<string>);
+                eventName = callbackEventAttribute.Key;
+                eventCallback = (EventCallback<string>)callbackEventAttribute.Value;
+                value = value.Where(_ => _.Value is not EventCallback<string>)
+                    .ToDictionary(_ => _.Key, _ => _.Value);
             }
 
             attributes = value;

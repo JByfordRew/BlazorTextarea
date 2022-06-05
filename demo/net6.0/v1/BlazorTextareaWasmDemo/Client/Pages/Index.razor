@@ -8,7 +8,7 @@
 
 <pre>&lt;Textarea @@bind-value=text @@bind-value:event="oninput"&gt;&lt;/Textarea&gt;</pre>
 
-<Textarea @bind-value=text @bind-value:event="onkeyup" BatchUpdates=true style="width:100%" rows=10></Textarea>
+<Textarea @bind-value=text @bind-value:event="oninput" BatchUpdates=true style="width:100%" rows=10></Textarea>
 
 <p>Text length: @text.Length (shows binding in operation)</p>
 
