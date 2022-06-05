@@ -60,6 +60,7 @@ builder.Services.AddServerSideBlazor()
 but, this component has batch updates built in to specifically solve this issue.  Nothing needs to be done to implement this as it has a built in `UpdateBatchCount` of 16,000 that updates the value binding without disconnecting the connection.
 
 ## Version History
+* Version 1.0.1 rename of jsInterop.js to avoid conflict with consuming projects.
 * Version 1.0.0 initial release .NET 6 component.
 
 ## Roadmap
